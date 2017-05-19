@@ -1,6 +1,6 @@
 FROM ruby:2.4.1
 
-ARG TEST_HOME=/closing_comments
+ARG TEST_HOME=/ensure_version_bump
 ADD *.gemspec $TEST_HOME/
 ADD Gemfile $TEST_HOME/
 WORKDIR $TEST_HOME
