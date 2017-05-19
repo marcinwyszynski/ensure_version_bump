@@ -1,0 +1,73 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift(File.dirname(File.realpath(__FILE__)) + '/../lib')
+require 'colorize'
+require 'forwardable'
+
+require 'ensure_version_bump'
+
+module CLI
+  def run(gem_name)
+    state = EnsureVersionBump.new(gem_name)
+    (state.success? ? Success.new(state) : Failure.new(state)).run
+  end
+  module_function :run
+
+  class Outcome
+    extend Forwardable
+    def_delegators :@state, :local, :remote
+
+    def initialize(state)
+      @state = state
+    end
+
+    def run
+      puts message
+      Kernel.exit(exit_code)
+    end
+
+    private
+
+    def message
+      "#{status} Local version (#{local.version}) #{comparison} than remote " \
+      "(#{remote.version})."
+    end
+  end # class Outcome
+  private_constant :Outcome
+
+  class Success < Outcome
+    private
+
+    def status
+      '[OK]'.green
+    end
+
+    def comparison
+      'higher'
+    end
+
+    def exit_code
+      0
+    end
+  end # class Success
+
+  class Failure < Outcome
+    def status
+      '[FAIL]'.red
+    end
+
+    def comparison
+      'not higher'
+    end
+
+    def exit_code
+      1
+    end
+  end # class Failure
+end # module CLI
+
+if ARGV.count != 1
+  puts 'Usage: bundle exec ensure_version_bump CURRENT_GEM_NAME'
+  Kernel.exit(2)
+end
+CLI.run(ARGV[0])

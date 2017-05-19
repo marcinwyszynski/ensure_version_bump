@@ -8,7 +8,6 @@ Installation - add this line to your `Gemfile`:
 gem 'ensure_version_bump', require: false
 ```
 
-
 Usage:
 
 ```bash
